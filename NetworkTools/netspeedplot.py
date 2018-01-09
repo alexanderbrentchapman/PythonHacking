@@ -1,25 +1,35 @@
-#!usr/bin/env python3.5
-# importing psutil for getting network statistics
-import psutil as net
-# importing matplotlib for live plotting
-import matplotlib.pyplot as plt
+"""
+	TODO:
+	@alexander:finish tx_speed
+"""
+#########################################
+# this program is only for linux so far #
+#########################################
+def get_txcurrent(iface):
+    # creating object with path of tx speed using the given interface
+    speed_file = "/sys/class/net/" + iface + "/statistics/tx_bytes"
+    file = open(speed_file)  # opening the file
+    speed = file.read()  # reading file
+    file.close()  # closing file
+    return int(speed)  # returning speed as an integer
 
-def getinterfaces():
-    stat_results = net.net_if_stats()
-    return stat_results.keys()
 
-def getspeed(name):
-    net_info = net.net_if_stats()
-    try:
-        net_speed = net_info[name].speed
-        return net_speed
-    except KeyError:
-        return 'Network interface does not exist'
+# getting interface name from the user
+iface_name = input("Interface Name: ")
 
-# printing out available interfaces
-print('Interfaces')
-for value in getinterfaces():
-    print(value)
-# getting the name of the network interface to plot
-if_name = input("Network interface name: ")
-print(getspeed(if_name))
+while True:
+    tx_past = 0
+    tx_current = get_txcurrent(iface_name)
+    print(tx_current)
+    print(tx_past)
+    if tx_past > tx_current:
+        tx_speed = tx_past - tx_current
+        print(tx_speed)
+        tx_past = tx_current
+        tx_current = get_txcurrent(iface_name)
+
+    if tx_current > tx_past:
+        tx_speed = tx_current - tx_past
+        print(tx_speed)
+        tx_past = tx_current
+        tx_current = get_txcurrent(iface_name)
